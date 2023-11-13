@@ -3,7 +3,7 @@ package com.safetynetalerte.safety.model;
 import java.util.List;
 
 public class PersonsList {
-
+	
 	private List<Person> persons;
 	
 	

@@ -7,9 +7,12 @@ public interface ConfiguredCrudRepository<T> {
 	
 	List<T> getAll();
 	
+	//T save(T t);
 	T save(T t);
 	
-	T findBy(String key);
+	T findById(String key0, String key1);
 	
-	void deleteBy(T t);
+	void deleteBy(String key0, String key1);
+	
+	T updateBy(T t, String key0, String key1);
 }
