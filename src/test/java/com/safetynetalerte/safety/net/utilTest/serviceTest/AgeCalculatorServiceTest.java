@@ -19,25 +19,18 @@ import static org.mockito.Mockito.when;
 public class AgeCalculatorServiceTest {
 	
 	private static AgeCalculatorService ageCalculatorService;
-	List<Person> persons = new ArrayList<>();
-	List<Medicalrecord> medicalrecords = new ArrayList<>();
+	List<Person> persons = new ArrayList<>(List.of(new Person("person1", "person1", "1 test", "test", "12345", "123-456-7891", "test@test.com"), new Person("person2", "person2", "2 test", "test", "12346", "123-456-7892", "test2@test.com")));
+	List<String> medication1 = new ArrayList<>(List.of("test : 2", "test2 : 5"));
+	List<String> medication2 = new ArrayList<>(List.of("test3 : 1"));
+	List<String> allergies1 = new ArrayList<>(List.of("test1"));
+	List<String> allergies2 = new ArrayList<>(List.of("test2", "test2.1"));
+	List<Medicalrecord> medicalrecords = new ArrayList<>(List.of(new Medicalrecord("person1", "person1", "01/02/2020", medication1, allergies1), new Medicalrecord("person2", "person2", "09/08/1993", medication2, allergies2)));
 	@Mock
 	private MedicalrecordRepositoryImpl medicalrecordRepositoryImpl;
 	
 	@BeforeEach
 	void setUpPerTest() {
 		ageCalculatorService = new AgeCalculatorService(medicalrecordRepositoryImpl);
-		
-		persons.add(new Person("person1", "person1", "1 test", "test", "12345", "123-456-7891", "test@test.com"));
-		persons.add(new Person("person2", "person2", "2 test", "test", "12346", "123-456-7892", "test2@test.com"));
-		
-		List<String> medication1 = new ArrayList<>(List.of("test : 2", "test2 : 5"));
-		List<String> medication2 = new ArrayList<>(List.of("test3 : 1"));
-		List<String> allergies1 = new ArrayList<>(List.of("test1"));
-		List<String> allergies2 = new ArrayList<>(List.of("test2", "test2.1"));
-		
-		medicalrecords.add(new Medicalrecord("person1", "person1", "01/02/2020", medication1, allergies1));
-		medicalrecords.add(new Medicalrecord("person2", "person2", "09/08/1993", medication2, allergies2));
 	}
 	
 	
@@ -69,19 +62,14 @@ public class AgeCalculatorServiceTest {
 	}
 	
 	@Test
-	void birthdateFormaterException(){
+	void birthdateFormaterException() {
 		List<Medicalrecord> medicalrecordList = new ArrayList<>();
 		List<String> medication1 = new ArrayList<>(List.of("test : 2", "test2 : 5"));
 		List<String> allergies1 = new ArrayList<>(List.of("test1"));
 		medicalrecordList.add(new Medicalrecord("person1", "person1", "02/05/3000", medication1, allergies1));
 		
-		
-		
 		when(medicalrecordRepositoryImpl.getAll()).thenReturn(medicalrecordList);
 		
-		
-		
 		int result = ageCalculatorService.counterOfAdultListFilter(persons);
-		
 	}
 }

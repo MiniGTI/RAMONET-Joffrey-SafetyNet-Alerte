@@ -7,8 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Objects;
 
-@Repository
-public class MedicalrecordRepositoryImpl implements MedicalrecordRepository {
+@Repository public class MedicalrecordRepositoryImpl implements MedicalrecordRepository {
 	private final List<Medicalrecord> medicalrecords = JsonReader.medicalrecordsList();
 	
 	@Override
@@ -38,17 +37,11 @@ public class MedicalrecordRepositoryImpl implements MedicalrecordRepository {
 	
 	@Override
 	public void deleteBy(final String firstName, final String lastName) {
-		for(int i = 0; i < medicalrecords.size(); i++) {
-			if(medicalrecords.get(i)
-					.getFirstName()
-					.equals(firstName) && medicalrecords.get(i)
-					.getLastName()
-					.equals(lastName)) {
-				medicalrecords.remove(medicalrecords.get(i));
-			}
-		}
+		medicalrecords.removeIf(medicalrecord -> medicalrecord.getFirstName()
+				.equals(firstName) && medicalrecord.getLastName()
+				.equals(lastName));
 	}
-
+	
 	@Override
 	public Medicalrecord updateBy(Medicalrecord partialUpdate, String firstName, String lastName) {
 		Medicalrecord medicalrecordToUpdate = findById(firstName, lastName);
@@ -74,5 +67,4 @@ public class MedicalrecordRepositoryImpl implements MedicalrecordRepository {
 		}
 		return medicalrecordToUpdate;
 	}
-
 }

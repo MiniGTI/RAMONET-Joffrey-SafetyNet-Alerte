@@ -5,8 +5,6 @@ import com.safetynetalerte.safety.model.Firestation;
 import com.safetynetalerte.safety.model.Person;
 import com.safetynetalerte.safety.repository.FirestationRepositoryImpl;
 import com.safetynetalerte.safety.repository.PersonRepositoryImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +13,7 @@ import java.util.List;
 
 @Service
 public class SpecialsRequestsService {
-	
-	private final static Logger logger = LoggerFactory.getLogger(SpecialsRequestsService.class);
+
 	private final PersonRepositoryImpl personRepositoryImpl;
 	private final FirestationRepositoryImpl firestationRepositoryImpl;
 	

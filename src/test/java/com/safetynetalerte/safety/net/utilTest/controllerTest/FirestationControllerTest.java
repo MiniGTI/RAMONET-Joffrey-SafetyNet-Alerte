@@ -27,8 +27,8 @@ public class FirestationControllerTest {
 	
 	@Autowired
 	ObjectMapper objectMapper;
-	Firestation updatedFirestation = new Firestation("599 bvd", "4");
-	List<Firestation> firestations = new ArrayList<>(List.of(new Firestation("599 bvd", "9"), new Firestation("1 25th St", "7"), new Firestation("599 1th bvd", "9"), new Firestation("1 20th St", "7")));
+
+	private final List<Firestation> FIRESTATIONS = new ArrayList<>(List.of(new Firestation("599 bvd", "9"), new Firestation("1 25th St", "7"), new Firestation("599 1th bvd", "9"), new Firestation("1 20th St", "7")));
 	@Autowired
 	private MockMvc mockMvc;
 	@MockBean
@@ -36,11 +36,11 @@ public class FirestationControllerTest {
 	
 	@Test
 	void getAllTest() throws Exception {
-		when(firestationService.getAll()).thenReturn(firestations);
+		when(firestationService.getAll()).thenReturn(FIRESTATIONS);
 		
 		mockMvc.perform(get("/api/v1/firestation"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.size()").value(firestations.size()))
+				.andExpect(jsonPath("$.size()").value(FIRESTATIONS.size()))
 				.andDo(print());
 	}
 	

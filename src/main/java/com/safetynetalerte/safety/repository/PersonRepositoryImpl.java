@@ -28,16 +28,18 @@ public class PersonRepositoryImpl implements PersonRepository {
 	
 	@Override
 	public Person findById(final String firstName, final String lastName) {
-		Person findedPerson = null;
-		for(int i = 0; i < persons.size(); i++) {
-			if(persons.get(i)
+			Person findedPerson = null;
+		
+		for(Person person : persons) {
+			if(person
 					.getFirstName()
-					.equals(firstName) && persons.get(i)
+					.equals(firstName) && person
 					.getLastName()
 					.equals(lastName)) {
-				findedPerson = persons.get(i);
+				findedPerson = person;
 			}
 		}
+		
 		return findedPerson;
 	}
 	
@@ -65,15 +67,9 @@ public class PersonRepositoryImpl implements PersonRepository {
 	
 	@Override
 	public void deleteBy(final String firstName, final String lastName) {
-		for(int i = 0; i < persons.size(); i++) {
-			if(persons.get(i)
-					.getFirstName()
-					.equals(firstName) && persons.get(i)
-					.getLastName()
-					.equals(lastName)) {
-				persons.remove(persons.get(i));
-			}
-		}
+		persons.removeIf(person -> person.getFirstName()
+				.equals(firstName) && person.getLastName()
+				.equals(lastName));
 	}
 	
 	@Override

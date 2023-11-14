@@ -2,17 +2,13 @@ package com.safetynetalerte.safety.repository;
 
 import com.safetynetalerte.safety.model.Firestation;
 import com.safetynetalerte.safety.util.JsonReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Repository
-public class FirestationRepositoryImpl implements FirestationRepository {
-	private final static Logger logger = LoggerFactory.getLogger(FirestationRepositoryImpl.class);
+@Repository public class FirestationRepositoryImpl implements FirestationRepository {
 	private final List<Firestation> firestations = JsonReader.firestationsList();
 	
 	
@@ -56,21 +52,16 @@ public class FirestationRepositoryImpl implements FirestationRepository {
 	
 	@Override
 	public void deleteBy(String address, String station) {
-		for(int i = 0; i < firestations.size(); i++) {
-			if(firestations.get(i)
-					.getAddress()
-					.equals(address) && firestations.get(i)
-					.getStation()
-					.equals(station)) {
-				firestations.remove(firestations.get(i));
-			}
-		}
+		firestations.removeIf(firestation -> firestation.getAddress()
+				.equals(address) && firestation.getStation()
+				.equals(station));
 	}
-
+	
 	@Override
 	public Firestation updateBy(Firestation firestation, String key0, String key1) {
 		return null;
 	}
+	
 	public Firestation update(Firestation partialUpdate, String address) {
 		Firestation firestationToUpdate = new Firestation();
 		
