@@ -1,6 +1,5 @@
 package com.safetynetalerte.safety.net.utilTest.controllerTest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.safetynetalerte.safety.controller.SpecialsRequestsController;
 import com.safetynetalerte.safety.dto.*;
 import com.safetynetalerte.safety.service.SpecialsRequestsService;
@@ -22,7 +21,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = SpecialsRequestsController.class)
 public class SpecialsRequestsControllerTest {
 	
-	private ObjectMapper objectMapper;
 	
 	@MockBean
 	private SpecialsRequestsService specialsRequestsService;
@@ -44,12 +42,13 @@ public class SpecialsRequestsControllerTest {
 				.add(new FamilyDTO("firstName4", "lastName1"));
 		
 		when(specialsRequestsService.findChildrenAndFamilyByAddress(address)).thenReturn(listChildAlertDTO);
+		ListChildAlertDTO serviceResult = specialsRequestsService.findChildrenAndFamilyByAddress(address);
 		
 		mockMvc.perform(get("/api/v1/childAlert/address", address))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.Children.size()").value(listChildAlertDTO.getChildAlertList()
+				.andExpect(jsonPath("$.Children.size()").value(serviceResult.getChildAlertList()
 						.size()))
-				.andExpect(jsonPath("$.Family.size()").value(listChildAlertDTO.getFamilyList()
+				.andExpect(jsonPath("$.Family.size()").value(serviceResult.getFamilyList()
 						.size()))
 				.andDo(print());
 	}
@@ -65,11 +64,14 @@ public class SpecialsRequestsControllerTest {
 		listPhoneAlertDTO.getPhoneAlertList()
 				.add(new PhoneAlertDTO("333-333-3333"));
 		
-		when(specialsRequestsService.findPhoneOfAllPersonsCoveredByFirestationNumber(station)).thenReturn(listPhoneAlertDTO);
+		when(specialsRequestsService.findPhoneOfAllPersonsCoveredByFirestationNumber(station)).thenReturn(
+				listPhoneAlertDTO);
+		ListPhoneAlertDTO serviceResult =
+				specialsRequestsService.findPhoneOfAllPersonsCoveredByFirestationNumber(station);
 		
 		mockMvc.perform(get("/api/v1/phoneAlert/{station}", station))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.phoneAlertList.size()").value(listPhoneAlertDTO.getPhoneAlertList()
+				.andExpect(jsonPath("$.phoneAlertList.size()").value(serviceResult.getPhoneAlertList()
 						.size()))
 				.andDo(print());
 	}
@@ -87,13 +89,16 @@ public class SpecialsRequestsControllerTest {
 				.add(new PersonAndMedicalrecordsDTO("firstName2", "lastName2", "222-222-2222", 17, medicalrecordDTO));
 		listFirePersonDTO.setFirestationNumber("9");
 		
-		when(specialsRequestsService.findPersonsAndTheirMedicalrecordsAndTheirFirestationByAddress(address)).thenReturn(listFirePersonDTO);
+		when(specialsRequestsService.findPersonsAndTheirMedicalrecordsAndTheirFirestationByAddress(address)).thenReturn(
+				listFirePersonDTO);
+		ListFirePersonDTO serviceResult =
+				specialsRequestsService.findPersonsAndTheirMedicalrecordsAndTheirFirestationByAddress(address);
 		
 		mockMvc.perform(get("/api/v1/fire/{address}", address))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.Persons.size()").value(listFirePersonDTO.getPersonFireAlertList()
+				.andExpect(jsonPath("$.Persons.size()").value(serviceResult.getPersonFireAlertList()
 						.size()))
-				.andExpect(jsonPath("$.firestationNumber").value(listFirePersonDTO.getFirestationNumber()))
+				.andExpect(jsonPath("$.firestationNumber").value(serviceResult.getFirestationNumber()))
 				.andDo(print());
 	}
 	
@@ -122,49 +127,65 @@ public class SpecialsRequestsControllerTest {
 		listPersonsCoveredResponseDTO.getListPersonsCoveredList()
 				.add(listPersonsCoveredDTO2);
 		
-		when(specialsRequestsService.findPersonsAndTheirMedicalrecordsByAFirestationList(station)).thenReturn(listPersonsCoveredResponseDTO);
+		when(specialsRequestsService.findPersonsAndTheirMedicalrecordsByAFirestationList(station)).thenReturn(
+				listPersonsCoveredResponseDTO);
+		ListPersonsCoveredResponseDTO serviceResult =
+				specialsRequestsService.findPersonsAndTheirMedicalrecordsByAFirestationList(station);
 		
 		mockMvc.perform(get("/api/v1/flood/{station}", argURI))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.PersonsCovered.size()").value(listPersonsCoveredResponseDTO.getListPersonsCoveredList()
+				.andExpect(jsonPath("$.PersonsCovered.size()").value(serviceResult.getListPersonsCoveredList()
 						.size()))
-				.andExpect(jsonPath("$.PersonsCovered[0].address").value(listPersonsCoveredDTO1.getAddress()))
-				.andExpect(jsonPath("$.PersonsCovered[1].address").value(listPersonsCoveredDTO2.getAddress()))
+				.andExpect(jsonPath("$.PersonsCovered[0].address").value(serviceResult.getListPersonsCoveredList()
+						.get(0)
+						.getAddress()))
+				.andExpect(jsonPath("$.PersonsCovered[1].address").value(serviceResult.getListPersonsCoveredList()
+						.get(1)
+						.getAddress()))
 				.andDo(print());
 	}
 	
 	@Test
-	void findPersonAndTheirFamilyTest() throws Exception{
+	void findPersonAndTheirFamilyTest() throws Exception {
 		String firstName = "firstName";
 		String lastName = "lastName";
 		ListPersonsInfoDTO listPersonsInfoDTO = new ListPersonsInfoDTO();
 		List<String> medications = new ArrayList<>(List.of("medication1", "medication2"));
 		List<String> allergies = new ArrayList<>(List.of("allergie1", "allergie2"));
 		MedicalrecordDTO medicalrecordDTO = new MedicalrecordDTO(medications, allergies);
-		listPersonsInfoDTO.getPersonsInfoList().add(new PersonInfosDTO("firstName1", "lastName1", " 42 bvd 1st", 35, "test@test.net", medicalrecordDTO));
-		listPersonsInfoDTO.getPersonsInfoList().add(new PersonInfosDTO("firstName2", "lastName1", " 42 bvd 1st", 26, "test1@test.net", medicalrecordDTO));
+		listPersonsInfoDTO.getPersonsInfoList()
+				.add(new PersonInfosDTO("firstName1", "lastName1", " 42 bvd 1st", 35, "test@test.net",
+						medicalrecordDTO));
+		listPersonsInfoDTO.getPersonsInfoList()
+				.add(new PersonInfosDTO("firstName2", "lastName1", " 42 bvd 1st", 26, "test1@test.net",
+						medicalrecordDTO));
 		
 		when(specialsRequestsService.findPersonAndTheirFamily(firstName, lastName)).thenReturn(listPersonsInfoDTO);
-	
+		ListPersonsInfoDTO serviceResult = specialsRequestsService.findPersonAndTheirFamily(firstName, lastName);
+		
 		mockMvc.perform(get("/api/v1/personInfo/{firstName}/{lastName}", firstName, lastName))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.Persons.size()").value(listPersonsInfoDTO.getPersonsInfoList().size()))
+				.andExpect(jsonPath("$.Persons.size()").value(serviceResult.getPersonsInfoList()
+						.size()))
 				.andDo(print());
-	
 	}
 	
 	@Test
-	void findAllMailOfTheCityTest() throws Exception{
+	void findAllMailOfTheCityTest() throws Exception {
 		String city = "city";
 		ListEmailDTO listEmailDTO = new ListEmailDTO();
-		listEmailDTO.getEmailList().add(new EmailDTO("test1@test.com"));
-		listEmailDTO.getEmailList().add(new EmailDTO("test2@test.com"));
+		listEmailDTO.getEmailList()
+				.add(new EmailDTO("test1@test.com"));
+		listEmailDTO.getEmailList()
+				.add(new EmailDTO("test2@test.com"));
 		
 		when(specialsRequestsService.findAllMailOfTheCity(city)).thenReturn(listEmailDTO);
+		ListEmailDTO serviceResult = specialsRequestsService.findAllMailOfTheCity(city);
 		
 		mockMvc.perform(get("/api/v1/communityEmail/{city}", city))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.emailList.size()").value(listEmailDTO.getEmailList().size()))
+				.andExpect(jsonPath("$.emailList.size()").value(serviceResult.getEmailList()
+						.size()))
 				.andDo(print());
 	}
 }

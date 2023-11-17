@@ -27,7 +27,9 @@ public class PersonControllerTest {
 	
 	@Autowired
 	ObjectMapper objectMapper;
-	List<Person> persons = new ArrayList<>(List.of(new Person("person1", "person1", "1 test", "test", "12345", "123-456-7891", "test@test.com"), new Person("person2", "person2", "2 test", "test", "12346", "123-456-7892", "test2@test.com")));
+	List<Person> persons = new ArrayList<>(
+			List.of(new Person("person1", "person1", "1 test", "test", "12345", "123-456-7891", "test@test.com"),
+					new Person("person2", "person2", "2 test", "test", "12346", "123-456-7892", "test2@test.com")));
 	Person person = new Person("firstName", "lastName", "address", "city", "zip", "phone", "email");
 	@Autowired
 	private MockMvc mockMvc;
@@ -37,10 +39,11 @@ public class PersonControllerTest {
 	@Test
 	void getAllTest() throws Exception {
 		when(personService.getAll()).thenReturn(persons);
+		List<Person> serviceResult = personService.getAll();
 		
 		mockMvc.perform(get("/api/v1/person"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.size()").value(persons.size()))
+				.andExpect(jsonPath("$.size()").value(serviceResult.size()))
 				.andDo(print());
 	}
 	
@@ -49,16 +52,17 @@ public class PersonControllerTest {
 		String firstName = "firstName";
 		String lastName = "lastName";
 		when(personService.findBy(firstName, lastName)).thenReturn(person);
+		Person serviceResult = personService.findBy(firstName, lastName);
 		
 		mockMvc.perform(get("/api/v1/person/{firstName}/{lastName}", firstName, lastName))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.firstName").value(firstName))
-				.andExpect(jsonPath("$.lastName").value(lastName))
-				.andExpect(jsonPath("$.address").value(person.getAddress()))
-				.andExpect(jsonPath("$.city").value(person.getCity()))
-				.andExpect(jsonPath("$.zip").value(person.getZip()))
-				.andExpect(jsonPath("$.phone").value(person.getPhone()))
-				.andExpect(jsonPath("$.email").value(person.getEmail()))
+				.andExpect(jsonPath("$.firstName").value(serviceResult.getFirstName()))
+				.andExpect(jsonPath("$.lastName").value(serviceResult.getLastName()))
+				.andExpect(jsonPath("$.address").value(serviceResult.getAddress()))
+				.andExpect(jsonPath("$.city").value(serviceResult.getCity()))
+				.andExpect(jsonPath("$.zip").value(serviceResult.getZip()))
+				.andExpect(jsonPath("$.phone").value(serviceResult.getPhone()))
+				.andExpect(jsonPath("$.email").value(serviceResult.getEmail()))
 				.andDo(print());
 	}
 	
@@ -66,8 +70,11 @@ public class PersonControllerTest {
 	void saveTest() throws Exception {
 		Person person = new Person("firstName", "lastName", "address", "city", "zip", "phone", "email");
 		
+		when(personService.save(person)).thenReturn(person);
+		Person serviceResult = personService.save(person);
+		
 		mockMvc.perform(post("/api/v1/person/add").contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(person)))
+						.content(objectMapper.writeValueAsString(serviceResult)))
 				.andExpect(status().isOk())
 				.andDo(print());
 	}
@@ -77,16 +84,19 @@ public class PersonControllerTest {
 		String firstName = "firstName";
 		String lastName = "lastName";
 		Person partialPerson = new Person(null, null, "modified address", null, null, "modified phone", null);
-		Person updatedPerson = new Person("firstName", "lastName", "modified address", "city", "zip", "modified phone", "email");
+		Person updatedPerson =
+				new Person("firstName", "lastName", "modified address", "city", "zip", "modified phone", "email");
 		when(personService.update(partialPerson, firstName, lastName)).thenReturn(updatedPerson);
+		Person serviceResult = personService.update(partialPerson, firstName, lastName);
 		
-		mockMvc.perform(patch("/api/v1/person/update/{firstName}/{lastName}", firstName, lastName).contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(patch("/api/v1/person/update/{firstName}/{lastName}", firstName, lastName).contentType(
+								MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(partialPerson)))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.firstName").value(firstName))
-				.andExpect(jsonPath("$.lastName").value(lastName))
-				.andExpect(jsonPath("$.address").value(updatedPerson.getAddress()))
-				.andExpect(jsonPath("$.phone").value(updatedPerson.getPhone()))
+				.andExpect(jsonPath("$.firstName").value(serviceResult.getFirstName()))
+				.andExpect(jsonPath("$.lastName").value(serviceResult.getLastName()))
+				.andExpect(jsonPath("$.address").value(serviceResult.getAddress()))
+				.andExpect(jsonPath("$.phone").value(serviceResult.getPhone()))
 				.andDo(print());
 	}
 	
@@ -96,6 +106,8 @@ public class PersonControllerTest {
 		String lastName = "lastName";
 		doNothing().when(personService)
 				.deleteBy(firstName, lastName);
+		
+		personService.deleteBy(firstName, lastName);
 		
 		mockMvc.perform(delete("/api/v1/person/delete/{firstName}/{lastName}", firstName, lastName))
 				.andExpect(status().isOk())

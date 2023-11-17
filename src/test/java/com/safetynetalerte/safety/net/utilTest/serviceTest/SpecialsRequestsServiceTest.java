@@ -64,7 +64,7 @@ import static org.mockito.Mockito.when;
 	
 	@Test
 	void findPhoneOfAllPersonsCoveredByFirestationNumberTest() {
-
+		
 		List<Person> person1List = new ArrayList<>(
 				List.of(new Person("person1", "person1", "599 bvd", "test", "12345", "123-456-7891", "test1@test.com"),
 						new Person("person2", "person1", "599 bvd", "test", "12345", "123-456-7892",
@@ -115,7 +115,7 @@ import static org.mockito.Mockito.when;
 	void findPersonsAndTheirMedicalrecordsByAFirestationListTest(){
 		List<String> firestationId = new ArrayList<>(List.of("9","1"));
 		when(firestationRepositoryImpl.findByStation(STATION)).thenReturn(FIRESTATIONS);
-		when(personRepositoryImpl.findPersonsByAddress("599 bvd")).thenReturn(personsFindByAddress);
+		when(personRepositoryImpl.findByAddress("599 bvd")).thenReturn(personsFindByAddress);
 		personsFindByAddress.forEach(person -> person.setAddress("599 bvd"));
 		when(ageCalculatorService.ageCalculator("person1", "person1")).thenReturn(38);
 		when(ageCalculatorService.ageCalculator("person2", "person1")).thenReturn(40);

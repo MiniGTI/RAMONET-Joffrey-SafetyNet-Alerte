@@ -25,10 +25,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = FirestationController.class)
 public class FirestationControllerTest {
 	
+	private final List<Firestation> FIRESTATIONS = new ArrayList<>(
+			List.of(new Firestation("599 bvd", "9"), new Firestation("1 25th St", "7"),
+					new Firestation("599 1th bvd", "9"), new Firestation("1 20th St", "7")));
 	@Autowired
 	ObjectMapper objectMapper;
-
-	private final List<Firestation> FIRESTATIONS = new ArrayList<>(List.of(new Firestation("599 bvd", "9"), new Firestation("1 25th St", "7"), new Firestation("599 1th bvd", "9"), new Firestation("1 20th St", "7")));
 	@Autowired
 	private MockMvc mockMvc;
 	@MockBean
@@ -37,10 +38,11 @@ public class FirestationControllerTest {
 	@Test
 	void getAllTest() throws Exception {
 		when(firestationService.getAll()).thenReturn(FIRESTATIONS);
+		List<Firestation> serviceResult = firestationService.getAll();
 		
 		mockMvc.perform(get("/api/v1/firestation"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.size()").value(FIRESTATIONS.size()))
+				.andExpect(jsonPath("$.size()").value(serviceResult.size()))
 				.andDo(print());
 	}
 	
@@ -52,10 +54,11 @@ public class FirestationControllerTest {
 		firestationFound.add(new Firestation("599 1th bvd", "9"));
 		
 		when(firestationService.findBy(station)).thenReturn(firestationFound);
+		List<Firestation> serviceResult = firestationService.findBy(station);
 		
 		mockMvc.perform(get("/api/v1/firestation/9"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.size()").value(firestationFound.size()))
+				.andExpect(jsonPath("$.size()").value(serviceResult.size()))
 				.andDo(print());
 	}
 	
@@ -63,8 +66,11 @@ public class FirestationControllerTest {
 	void saveTest() throws Exception {
 		Firestation firestation = new Firestation("17 Mont Vert", "6");
 		
+		when(firestationService.save(firestation)).thenReturn(firestation);
+		Firestation serviceResult = firestationService.save(firestation);
+		
 		mockMvc.perform(post("/api/v1/firestation/add").contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(firestation)))
+						.content(objectMapper.writeValueAsString(serviceResult)))
 				.andExpect(status().isOk())
 				.andDo(print());
 	}
@@ -75,12 +81,13 @@ public class FirestationControllerTest {
 		Firestation partialFirestation = new Firestation(null, "5");
 		Firestation updatedFirestation = new Firestation("599 bvd", "5");
 		when(firestationService.update(partialFirestation, address)).thenReturn(updatedFirestation);
+		Firestation serviceResult = firestationService.update(partialFirestation, address);
 		
 		mockMvc.perform(patch("/api/v1/firestation/update/{address}", address).contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(partialFirestation)))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.address").value(address))
-				.andExpect(jsonPath("$.station").value(updatedFirestation.getStation()))
+				.andExpect(jsonPath("$.address").value(serviceResult.getAddress()))
+				.andExpect(jsonPath("$.station").value(serviceResult.getStation()))
 				.andDo(print());
 	}
 	
@@ -109,13 +116,14 @@ public class FirestationControllerTest {
 		String station = "station";
 		
 		when(firestationService.findPersonsCoveredByFirestationId(station)).thenReturn(personsList);
+		ListPersonStationNumberDTO serviceResult = firestationService.findPersonsCoveredByFirestationId(station);
 		
 		mockMvc.perform(get("/api/v1/firestation/firestation/{station}", station))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.Persons.size()").value(personsList.getPersonStationNumberList()
+				.andExpect(jsonPath("$.Persons.size()").value(serviceResult.getPersonStationNumberList()
 						.size()))
-				.andExpect(jsonPath("$.adult").value(personsList.getAdult()))
-				.andExpect(jsonPath("$.child").value(personsList.getChild()))
+				.andExpect(jsonPath("$.adult").value(serviceResult.getAdult()))
+				.andExpect(jsonPath("$.child").value(serviceResult.getChild()))
 				
 				.andDo(print());
 	}

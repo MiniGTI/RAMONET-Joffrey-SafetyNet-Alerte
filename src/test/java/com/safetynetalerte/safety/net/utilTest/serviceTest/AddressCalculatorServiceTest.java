@@ -1,5 +1,9 @@
 package com.safetynetalerte.safety.net.utilTest.serviceTest;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.safetynetalerte.safety.model.Firestation;
 import com.safetynetalerte.safety.model.Person;
 import com.safetynetalerte.safety.repository.FirestationRepositoryImpl;
@@ -9,6 +13,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
@@ -47,5 +52,29 @@ public class AddressCalculatorServiceTest {
 		Assertions.assertTrue(result.stream()
 				.anyMatch(person -> person.getFirstName()
 						.equals("person1")));
+	}
+	
+	@Test
+	void personsCoveredByAFirestationWhenFirestationListIsEmptyLoggerTest() {
+		Logger logger = (Logger) LoggerFactory.getLogger(AddressCalculatorService.class);
+		ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+		listAppender.start();
+		logger.addAppender(listAppender);
+		
+		List<Firestation> firestationList = new ArrayList<>();
+		when(firestationRepositoryImpl.findByStation("1")).thenReturn(firestationList);
+		when(personRepositoryImpl.getAll()).thenReturn(persons);
+		
+		addressCalculatorService.personsCoveredByAFirestation("1");
+		
+		List<ILoggingEvent> logsList = listAppender.list;
+		Assertions.assertEquals("firestations size: 0", logsList.get(0)
+				.getMessage());
+		Assertions.assertEquals(Level.DEBUG, logsList.get(0)
+				.getLevel());
+		Assertions.assertEquals("personsCoveredList is empty", logsList.get(1)
+				.getMessage());
+		Assertions.assertEquals(Level.ERROR, logsList.get(1)
+				.getLevel());
 	}
 }

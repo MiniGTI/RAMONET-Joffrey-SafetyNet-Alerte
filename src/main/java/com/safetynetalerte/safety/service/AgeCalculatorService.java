@@ -16,21 +16,35 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Class to perform age calculs or age filter.
+ */
 @Service
 public class AgeCalculatorService {
+	/**
+	 * Logger.
+	 */
 	private final static Logger logger = LoggerFactory.getLogger(AgeCalculatorService.class);
+	/**
+	 * Call of the implementation of the Medicalrecord repository.
+	 */
 	private final MedicalrecordRepositoryImpl medicalrecordRepositoryImpl;
 	
+	/**
+	 * Class constructor.
+	 *
+	 * @param medicalrecordRepositoryImpl Medicalrecord repository.
+	 */
 	public AgeCalculatorService(MedicalrecordRepositoryImpl medicalrecordRepositoryImpl) {
 		this.medicalrecordRepositoryImpl = medicalrecordRepositoryImpl;
 	}
 	
 	
 	/**
-	 * Formate the birthdate string from medicalrecords
+	 * Formate the birthdate string from medicalrecords.
 	 *
-	 * @param birthdate - string contain a date with dd/MM/yyyy format
-	 * @return - string contain the birthdate reformated like yyyy/MM/dd
+	 * @param birthdate string contain a date with dd/MM/yyyy format.
+	 * @return string contain the birthdate reformatted like yyyy/MM/dd.
 	 */
 	private String birthdateFormater(String birthdate) {
 		final String OLD_FORMAT = "dd/MM/yyyy";
@@ -44,17 +58,19 @@ public class AgeCalculatorService {
 			formatedBirthdate = simpleDateFormat.format(date);
 			formatedBirthdate = formatedBirthdate.replaceAll("/", "");
 		} catch(ParseException e) {
+			logger.error("Error in the birthdate format process, birthdate: " + birthdate);
 			throw new RuntimeException("Error in the birthdate format process", e);
 		}
 		return formatedBirthdate;
 	}
 	
 	/**
-	 * Return True if the medicalrecord parsed in @param is over 18years old
-	 * @param medicalrecord - Medicalrecord.class
-	 * @return Boolean - True if >18 or false if <18
+	 * Return True if the medicalrecord parsed in @param is over 18years old.
+	 *
+	 * @param medicalrecord Medicalrecord object.
+	 * @return Boolean  True if >18 or false if <18.
 	 */
-	private Boolean adultFiltrer(Medicalrecord medicalrecord){
+	private Boolean adultFiltrer(Medicalrecord medicalrecord) {
 		boolean major = false;
 		
 		int toDay = Integer.parseInt(LocalDate.now()
@@ -74,9 +90,10 @@ public class AgeCalculatorService {
 	}
 	
 	/**
-	 * Return a string with the count of major and minor persons from the list
-	 * @param personsListToFilter - list of Person
-	 * @return String - a string with result
+	 * Return an int with the count of adult from the list of Person object parsed.
+	 *
+	 * @param personsListToFilter list of Person object.
+	 * @return int  count of adult.
 	 */
 	
 	public int counterOfAdultListFilter(List<Person> personsListToFilter) {
@@ -97,18 +114,17 @@ public class AgeCalculatorService {
 			if(adultFiltrer(medicalrecord)) {
 				major += 1;
 			}
-			
 		}
 		return major;
 	}
 	
 	/**
-	 * Return a list of Person under 18years old from the list of Person
-	 * @param personsListToFilter - List of Person
-	 * @return List<Person> - List of person under 18 years old
-	 * @throws Exception - from adultFilter call
+	 * Return a list of Person object under 18years old from the list of Person object.
+	 *
+	 * @param personsListToFilter List of Person object have to be filtered.
+	 * @return a list of person Object under 18 years old.
 	 */
-	public List<Person> adultListFilter(List<Person> personsListToFilter) throws Exception {
+	public List<Person> adultListFilter(List<Person> personsListToFilter) {
 		List<Medicalrecord> medicalrecordsList = medicalrecordRepositoryImpl.getAll();
 		List<Person> minorList = new ArrayList<>();
 		
@@ -127,12 +143,13 @@ public class AgeCalculatorService {
 	}
 	
 	/**
-	 * Calcul the age of a Person
-	 * @param firstName - Person firstName field
-	 * @param lastName - Person lastName field
-	 * @return String - the age of the Person in a String
+	 * Calcul the age of a Person.
+	 *
+	 * @param firstName Person firstName field.
+	 * @param lastName  Person lastName field.
+	 * @return int  the age of the Person.
 	 */
-	public int ageCalculator(String firstName, String lastName){
+	public int ageCalculator(String firstName, String lastName) {
 		List<Medicalrecord> medicalrecordsList = medicalrecordRepositoryImpl.getAll();
 		int age = 0;
 		for(Medicalrecord medicalrecord : medicalrecordsList) {

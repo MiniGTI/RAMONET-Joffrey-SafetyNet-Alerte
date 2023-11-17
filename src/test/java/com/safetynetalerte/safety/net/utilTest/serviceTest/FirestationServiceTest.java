@@ -1,5 +1,9 @@
 package com.safetynetalerte.safety.net.utilTest.serviceTest;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.safetynetalerte.safety.dto.ListPersonStationNumberDTO;
 import com.safetynetalerte.safety.model.Firestation;
 import com.safetynetalerte.safety.model.Person;
@@ -9,6 +13,7 @@ import com.safetynetalerte.safety.service.AgeCalculatorService;
 import com.safetynetalerte.safety.service.FirestationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,7 +24,8 @@ import java.util.List;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest public class FirestationServiceTest {
+@SpringBootTest
+public class FirestationServiceTest {
 	
 	private final String STATION = "station";
 	private final String ADDRESS = "address";
@@ -86,7 +92,11 @@ import static org.mockito.Mockito.when;
 	}
 	
 	@Test
-	void findPersonsCoveredByFirestationIdTest() throws Exception {
+	void findPersonsCoveredByFirestationIdAndLoggerTest() throws Exception {
+		Logger logger = (Logger) LoggerFactory.getLogger(FirestationService.class);
+		ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+		listAppender.start();
+		logger.addAppender(listAppender);
 		
 		List<Person> persons = new ArrayList<>(
 				List.of(new Person("person1", "person1", "1 test", "test", "12345", "123-456-7891", "test@test.com"),
@@ -101,5 +111,15 @@ import static org.mockito.Mockito.when;
 		Assertions.assertEquals(1, result.getChild());
 		Assertions.assertEquals(persons.size(), result.getPersonStationNumberList()
 				.size());
+		
+		List<ILoggingEvent> logsList = listAppender.list;
+		Assertions.assertEquals("personsCoveredByAFirestation.size: " + persons.size(), logsList.get(0).getMessage());
+		Assertions.assertEquals(Level.DEBUG, logsList.get(0).getLevel());
+		Assertions.assertEquals("personsInfosFiltered size: " + result.getPersonStationNumberList().size(), logsList.get(1).getMessage());
+		Assertions.assertEquals(Level.DEBUG, logsList.get(1).getLevel());
+		Assertions.assertEquals("minor: " + result.getChild() + " adult: " + result.getAdult(), logsList.get(2).getMessage());
+		Assertions.assertEquals(Level.DEBUG, logsList.get(2).getLevel());
 	}
+	
+	
 }

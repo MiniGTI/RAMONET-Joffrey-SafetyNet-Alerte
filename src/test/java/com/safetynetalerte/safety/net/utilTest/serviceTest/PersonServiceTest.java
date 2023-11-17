@@ -48,14 +48,14 @@ public class PersonServiceTest {
 	}
 	
 	@Test
-	void findPersonsByAddressTest() {
+	void findByAddressTest() {
 		String address = "address";
 		List<Person> personsList = new ArrayList<>();
 		personsList.add(person);
 		
-		when(personRepositoryImpl.findPersonsByAddress(address)).thenReturn(personsList);
+		when(personRepositoryImpl.findByAddress(address)).thenReturn(personsList);
 		
-		List<Person> result = personService.findPersonsByAddress(address);
+		List<Person> result = personService.findByAddress(address);
 		
 		Assertions.assertEquals(personsList.size(), result.size());
 	}

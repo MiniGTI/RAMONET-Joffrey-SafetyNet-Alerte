@@ -28,7 +28,9 @@ public class MedicalrecordControllerTest {
 	ObjectMapper objectMapper;
 	List<String> medications = new ArrayList<>(List.of("test : 1", "test : 2"));
 	List<String> allergies = new ArrayList<>(List.of("test1", "test2"));
-	List<Medicalrecord> medicalrecords = new ArrayList<>(List.of(new Medicalrecord("firstName1", "lastName1", "05/05/2000", medications, allergies), new Medicalrecord("firstName2", "lastName2", "09/01/2020", medications, allergies)));
+	List<Medicalrecord> medicalrecords = new ArrayList<>(
+			List.of(new Medicalrecord("firstName1", "lastName1", "05/05/2000", medications, allergies),
+					new Medicalrecord("firstName2", "lastName2", "09/01/2020", medications, allergies)));
 	Medicalrecord medicalrecord = new Medicalrecord("firstName", "lastName", "10/10/1990", medications, allergies);
 	@Autowired
 	private MockMvc mockMvc;
@@ -38,10 +40,11 @@ public class MedicalrecordControllerTest {
 	@Test
 	void getAllTest() throws Exception {
 		when(medicalrecordService.getAll()).thenReturn(medicalrecords);
+		List<Medicalrecord> serviceResult = medicalrecordService.getAll();
 		
 		mockMvc.perform(get("/api/v1/medicalrecord"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.size()").value(medicalrecords.size()))
+				.andExpect(jsonPath("$.size()").value(serviceResult.size()))
 				.andDo(print());
 	}
 	
@@ -50,57 +53,62 @@ public class MedicalrecordControllerTest {
 		String firstName = "firstName";
 		String lastName = "lastName";
 		when(medicalrecordService.findBy(firstName, lastName)).thenReturn(medicalrecord);
+		Medicalrecord serviceResult = medicalrecordService.findBy(firstName, lastName);
 		
 		mockMvc.perform((get("/api/v1/medicalrecord/{firstName}/{lastName}", firstName, lastName)))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.firstName").value(firstName))
-				.andExpect(jsonPath("$.lastName").value(lastName))
-				.andExpect(jsonPath("$.birthdate").value(medicalrecord.getBirthdate()))
-				.andExpect(jsonPath("$.medications").value(medicalrecord.getMedications()))
-				.andExpect(jsonPath("$.allergies").value(medicalrecord.getAllergies()))
+				.andExpect(jsonPath("$.firstName").value(serviceResult.getFirstName()))
+				.andExpect(jsonPath("$.lastName").value(serviceResult.getLastName()))
+				.andExpect(jsonPath("$.birthdate").value(serviceResult.getBirthdate()))
+				.andExpect(jsonPath("$.medications").value(serviceResult.getMedications()))
+				.andExpect(jsonPath("$.allergies").value(serviceResult.getAllergies()))
 				.andDo(print());
 	}
 	
 	@Test
-	void saveTest() throws Exception{
+	void saveTest() throws Exception {
 		when(medicalrecordService.save(medicalrecord)).thenReturn(medicalrecord);
+		Medicalrecord serviceResult = medicalrecordService.save(medicalrecord);
 		
 		mockMvc.perform(post("/api/v1/medicalrecord/add").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(medicalrecord)))
+						.content(objectMapper.writeValueAsString(serviceResult)))
 				.andExpect(status().isOk())
 				.andDo(print());
 	}
 	
 	@Test
-	void updateTest() throws Exception{
+	void updateTest() throws Exception {
 		String firstName = "firstName";
 		String lastName = "lastName";
 		Medicalrecord partialMedicalrecord = new Medicalrecord(null, null, "modified birthdate", null, null);
-		Medicalrecord updatedMedicalrecord = new Medicalrecord("firstName", "lastName", "modified birthdate", medications, allergies);
+		Medicalrecord updatedMedicalrecord =
+				new Medicalrecord("firstName", "lastName", "modified birthdate", medications, allergies);
 		
 		when(medicalrecordService.update(partialMedicalrecord, firstName, lastName)).thenReturn(updatedMedicalrecord);
-	
-		mockMvc.perform(patch("/api/v1/medicalrecord/update/{firstName}/{lastName}", firstName, lastName).contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(partialMedicalrecord)))
+		Medicalrecord serviceResult = medicalrecordService.update(partialMedicalrecord, firstName, lastName);
+		
+		mockMvc.perform(patch("/api/v1/medicalrecord/update/{firstName}/{lastName}", firstName, lastName).contentType(
+								MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(partialMedicalrecord)))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.firstName").value(firstName))
-				.andExpect(jsonPath("$.lastName").value(lastName))
-				.andExpect(jsonPath("$.birthdate").value(updatedMedicalrecord.getBirthdate()))
-				.andExpect(jsonPath("$.medications").value(updatedMedicalrecord.getMedications()))
-				.andExpect(jsonPath("$.allergies").value(updatedMedicalrecord.getAllergies()))
+				.andExpect(jsonPath("$.firstName").value(serviceResult.getFirstName()))
+				.andExpect(jsonPath("$.lastName").value(serviceResult.getLastName()))
+				.andExpect(jsonPath("$.birthdate").value(serviceResult.getBirthdate()))
+				.andExpect(jsonPath("$.medications").value(serviceResult.getMedications()))
+				.andExpect(jsonPath("$.allergies").value(serviceResult.getAllergies()))
 				.andDo(print());
-	
 	}
 	
 	@Test
-	void deleteTest() throws Exception{
+	void deleteTest() throws Exception {
 		String firstName = "firstName";
 		String lastName = "lastName";
-		doNothing().when(medicalrecordService).deleteBy(firstName, lastName);
+		doNothing().when(medicalrecordService)
+				.deleteBy(firstName, lastName);
+		medicalrecordService.deleteBy(firstName, lastName);
 		
 		mockMvc.perform(delete("/api/v1/medicalrecord/delete/{firstName}/{lastName}", firstName, lastName))
 				.andExpect(status().isOk())
 				.andDo(print());
 	}
-
 }
